@@ -1,0 +1,13 @@
+GET http://localhost:3000/api/places
+###
+GET http://localhost:3000/api/places/1
+###
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+  "name": "radu",
+  "password": "password"
+}
+###
+GET http://localhost:3000/api/users

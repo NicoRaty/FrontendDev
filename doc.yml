@@ -1,0 +1,280 @@
+openapi: 3.0.3
+info:
+  title: Places API
+  version: 1.0.0
+  description: >
+    API for managing places and user authentication.
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Places
+    description: Place management endpoints
+  - name: Users
+    description: User management endpoints
+  - name: Login
+    description: Authentication endpoints
+
+paths:
+  /api/places:
+    get:
+      tags: [Places]
+      security: []
+      summary: Get all places
+      responses:
+        "200":
+          description: Places retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+        "500":
+          description: Internal server error
+
+    post:
+      tags: [Places]
+      summary: Add a new place
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Place"
+      responses:
+        "201":
+          description: Place created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        "400":
+          description: Missing or invalid fields
+        "401":
+          description: Invalid or missing token
+        "403":
+          description: Token belongs to a different user
+        "500":
+          description: Internal server error
+
+  /api/places/{id}:
+    get:
+      tags: [Places]
+      security: []
+      summary: Get a specific place by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Place retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        "400":
+          description: Invalid ID
+        "404":
+          description: Place not found
+        "500":
+          description: Internal server error
+
+    put:
+      tags: [Places]
+      summary: Update a place by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Place"
+      responses:
+        "200":
+          description: Place updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        "400":
+          description: Missing or invalid fields
+        "401":
+          description: Invalid or missing token
+        "403":
+          description: Token belongs to a different user
+        "404":
+          description: Place not found
+        "500":
+          description: Internal server error
+  
+    delete:
+      tags: [Places]
+      summary: Delete a place by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Place deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        "400":
+          description: Missing or invalid fields
+        "401":
+          description: Invalid or missing token
+        "403":
+          description: Token belongs to a different user
+        "404":
+          description: Place not found
+        "500":
+          description: Internal server error
+
+  /api/users:
+    get:
+      tags: [Users]
+      security: []
+      summary: Get all users
+      responses:
+        "200":
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        "500":
+          description: Internal server error
+
+    post:
+      tags: [Users]
+      security: []
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, password]
+              properties:
+                name:
+                  type: string
+                  example: TestUser
+                password:
+                  type: string
+                  example: TestPassword123
+      responses:
+        "200":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'      
+        "400":
+          description: Missing username or password
+        "409":
+          description: User already exists
+        "500":
+          description: Internal server error
+
+  
+  /api/login:
+    post:
+      tags: [Login]
+      security: []
+      summary: Log in and obtain a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, password]
+              properties:
+                name:
+                  type: string
+                  example: TestUser
+                password:
+                  type: string
+                  example: TestPassword123
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: Missing username or password
+        "401":
+          description: Invalid credentials
+        "500":
+          description: Internal server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      required: [ID, Name]
+      properties:
+        ID:
+          type: integer
+          example: 4
+        Name:
+          type: string
+          example: TestUser
+        Token:
+          type: string
+          example: ey*********************
+
+    Place:
+      type: object
+      required: [ID, Name, UserID, Latitude, Longitude]
+      properties:
+        ID:
+          type: integer
+          example: 102
+        Name:
+          type: string
+          example: Karelia (Wärtsilä)
+        UserID:
+          type: integer
+          example: 4
+        Latitude:
+          type: number
+          example: 62.596212
+        Longitude:
+          type: number
+          example: 29.777227
